@@ -1751,17 +1751,21 @@
       elementPosition.height = element.offsetHeight;
 
       //calculate element top and left
-      var _x = 0;
-      var _y = 0;
-      while (element && !isNaN(element.offsetLeft) && !isNaN(element.offsetTop)) {
-        _x += element.offsetLeft;
-        _y += element.offsetTop;
-        element = element.offsetParent;
-      }
-      //set top
-      elementPosition.top = _y;
-      //set left
-      elementPosition.left = _x;
+      // var _x = 0;
+      // var _y = 0;
+      // while (element && !isNaN(element.offsetLeft) && !isNaN(element.offsetTop)) {
+      //   _x += element.offsetLeft;
+      //   _y += element.offsetTop;
+      //   element = element.offsetParent;
+      // }
+      // //set top
+      // elementPosition.top = _y;
+      // //set left
+      // elementPosition.left = _x;
+
+      var clientRect = element.getBoundingClientRect();
+      elementPosition.top = clientRect.top;
+      elementPosition.left = clientRect.left;
     }
 
     return elementPosition;
