@@ -924,7 +924,12 @@
             stepStatusLayer.innerText = targetElement.step + ' of ' + this._introItems.length;
 
             titleLayer.className = 'introjs-title';
-            titleLayer.innerHTML = targetElement.title;
+            if (targetElement.title) {
+                titleLayer.innerHTML = targetElement.title;
+                titleLayer.style.display = 'block';
+            } else {
+                titleLayer.style.display = 'none';
+            }
 
             tooltipTextLayer.className = 'introjs-tooltiptext';
             tooltipTextLayer.innerHTML = targetElement.intro;
