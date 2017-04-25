@@ -30,6 +30,14 @@
         this._introItems = [];
 
         this._options = {
+            /* Done button title in tooltip box */
+            doneLabelTooltip: false,
+            /* Skip button title in tooltip box */
+            skipLabelTooltip: false,
+            /* Prev button title in tooltip box */
+            prevLabelTooltip: false,
+            /* Next button title in tooltip box */
+            nextLabelTooltip: false,
             /* Next button label in tooltip box */
             nextLabel: 'Next &rarr;',
             /* Previous button label in tooltip box */
@@ -1015,6 +1023,11 @@
             _setAnchorAsButton(nextTooltipButton);
             nextTooltipButton.innerHTML = this._options.nextLabel;
 
+            if (this._options.nextLabelTooltip) {
+                nextTooltipButton.title = this._options.nextLabelTooltip;
+                nextTooltipButton.setAttribute('data-tooltip', '');
+            }
+
             //previous button
             var prevTooltipButton = document.createElement('a');
 
@@ -1027,11 +1040,21 @@
             _setAnchorAsButton(prevTooltipButton);
             prevTooltipButton.innerHTML = this._options.prevLabel;
 
+            if (this._options.prevLabelTooltip) {
+                prevTooltipButton.title = this._options.prevLabelTooltip;
+                prevTooltipButton.setAttribute('data-tooltip', '');
+            }
+
             //skip button
             var skipTooltipButton = document.createElement('a');
             skipTooltipButton.className = 'introjs-button introjs-skipbutton';
             _setAnchorAsButton(skipTooltipButton);
             skipTooltipButton.innerHTML = this._options.skipLabel;
+
+            if (this._options.skipLabelTooltip) {
+                skipTooltipButton.title = this._options.skipLabelTooltip;
+                skipTooltipButton.setAttribute('data-tooltip', '');
+            }
 
             skipTooltipButton.onclick = function() {
                 if (self._introItems.length - 1 == self._currentStep && typeof (self._introCompleteCallback) === 'function') {
@@ -1079,9 +1102,19 @@
 
             prevTooltipButton.tabIndex = '-1';
             skipTooltipButton.innerHTML = this._options.skipLabel;
+
+            if (this._options.skipLabelTooltip) {
+                skipTooltipButton.title = this._options.skipLabelTooltip;
+            }
+
         } else if (this._introItems.length - 1 == this._currentStep || this._introItems.length == 1) {
             // last step of tour
             skipTooltipButton.innerHTML = this._options.doneLabel;
+
+            if (this._options.doneLabelTooltip) {
+                skipTooltipButton.title = this._options.doneLabelTooltip;
+            }
+
             // adding donebutton class in addition to skipbutton
             skipTooltipButton.className += ' introjs-donebutton';
             prevTooltipButton.className = 'introjs-button introjs-prevbutton';
@@ -1100,6 +1133,10 @@
             prevTooltipButton.className = 'introjs-button introjs-prevbutton';
             nextTooltipButton.className = 'introjs-button introjs-nextbutton';
             skipTooltipButton.innerHTML = this._options.skipLabel;
+
+            if (this._options.skipLabelTooltip) {
+                skipTooltipButton.title = this._options.skipLabelTooltip;
+            }
         }
 
         //Set focus on "next" button, so that hitting Enter always moves you onto the next step
