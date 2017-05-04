@@ -222,7 +222,7 @@
                 if (e.keyCode === 27 && self._options.exitOnEsc == true) {
                     //escape key pressed, exit the intro
                     //check if exit callback is defined
-                    _exitIntro.call(self, targetElm);
+                    _exitIntro.call(self, targetElm, true);
                 } else if(e.keyCode === 37) {
                     //left arrow
                     _previousStep.call(self);
@@ -395,7 +395,7 @@
      * @method _exitIntro
      * @param {Object} targetElement
      */
-    function _exitIntro(targetElement) {
+    function _exitIntro(targetElement, isSkip) {
         //remove overlay layers from the page
         var overlayLayers = targetElement.querySelectorAll('.introjs-overlay');
 
@@ -453,7 +453,7 @@
 
         //check if any callback is defined
         if (this._introExitCallback != undefined) {
-            this._introExitCallback.call(self);
+            this._introExitCallback.call(self, isSkip);
         }
 
         //set the step to zero
@@ -1061,7 +1061,7 @@
                     self._introCompleteCallback.call(self);
                 }
 
-                _exitIntro.call(self, self._targetElement);
+                _exitIntro.call(self, self._targetElement, true);
             };
 
             buttonsLayer.appendChild(skipTooltipButton);
