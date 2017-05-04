@@ -1059,9 +1059,10 @@
             skipTooltipButton.onclick = function() {
                 if (self._introItems.length - 1 == self._currentStep && typeof (self._introCompleteCallback) === 'function') {
                     self._introCompleteCallback.call(self);
+                    _exitIntro.call(self, self._targetElement);
+                } else {
+                    _exitIntro.call(self, self._targetElement, true);
                 }
-
-                _exitIntro.call(self, self._targetElement, true);
             };
 
             buttonsLayer.appendChild(skipTooltipButton);
