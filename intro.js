@@ -216,6 +216,7 @@
             _nextStep.call(self);
 
             var skipButton     = targetElm.querySelector('.introjs-skipbutton'),
+                prevStepButton = targetElm.querySelector('.introjs-prevbutton'),
                 nextStepButton = targetElm.querySelector('.introjs-nextbutton');
 
             self._onKeyDown = function(e) {
@@ -224,9 +225,19 @@
                     //check if exit callback is defined
                     _exitIntro.call(self, targetElm, true);
                 } else if(e.keyCode === 37) {
+                    // ignore if button is blocked
+                    if (prevStepButton.classList.contains('introjs-button--blocked')) {
+                        return;
+                    }
+
                     //left arrow
                     _previousStep.call(self);
                 } else if (e.keyCode === 39) {
+                    // ignore if button is blocked
+                    if (nextStepButton.classList.contains('introjs-button--blocked')) {
+                        return;
+                    }
+
                     //right arrow
                     _nextStep.call(self);
                 } else if (e.keyCode === 13) {
