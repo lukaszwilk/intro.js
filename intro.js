@@ -225,6 +225,9 @@
                     //check if exit callback is defined
                     _exitIntro.call(self, targetElm, true);
                 } else if(e.keyCode === 37) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     // ignore if button is blocked
                     if (prevStepButton.classList.contains('introjs-button--blocked')) {
                         return;
@@ -233,6 +236,9 @@
                     //left arrow
                     _previousStep.call(self);
                 } else if (e.keyCode === 39) {
+                    e.preventDefault();
+                    e.stopPropagation();
+
                     // ignore if button is blocked
                     if (nextStepButton.classList.contains('introjs-button--blocked')) {
                         return;
