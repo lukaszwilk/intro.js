@@ -109,25 +109,28 @@
                 var currentItem = _cloneObject(this._options.steps[i]);
                 //set the step
                 currentItem.step = introItems.length + 1;
-                //use querySelector function only when developer used CSS selector
-                if (typeof(currentItem.element) === 'string') {
-                    //grab the element with given selector from the page
-                    currentItem.element = document.querySelector(currentItem.element);
-                }
 
-                //intro without element
-                if (typeof(currentItem.element) === 'undefined' || currentItem.element == null) {
-                    var floatingElementQuery = document.querySelector(".introjsFloatingElement");
-
-                    if (floatingElementQuery == null) {
-                        floatingElementQuery = document.createElement('div');
-                        floatingElementQuery.className = 'introjsFloatingElement';
-
-                        document.body.appendChild(floatingElementQuery);
+                if (!currentItem.isDynamicElement) {
+                    //use querySelector function only when developer used CSS selector
+                    if (typeof(currentItem.element) === 'string') {
+                        //grab the element with given selector from the page
+                        currentItem.element = document.querySelector(currentItem.element);
                     }
 
-                    currentItem.element  = floatingElementQuery;
-                    currentItem.position = 'floating';
+                    //intro without element
+                    if (typeof(currentItem.element) === 'undefined' || currentItem.element == null) {
+                        var floatingElementQuery = document.querySelector(".introjsFloatingElement");
+
+                        if (floatingElementQuery == null) {
+                            floatingElementQuery = document.createElement('div');
+                            floatingElementQuery.className = 'introjsFloatingElement';
+
+                            document.body.appendChild(floatingElementQuery);
+                        }
+
+                        currentItem.element = floatingElementQuery;
+                        currentItem.position = 'floating';
+                    }
                 }
 
                 if (currentItem.element != null) {
@@ -750,13 +753,14 @@
             if (!this._introItems[this._currentStep]) return;
 
             var currentElement  = this._introItems[this._currentStep],
-                elementPosition = _getOffset(currentElement.element),
+                elementNode = _getElementNode(currentElement),
+                elementPosition = _getOffset(elementNode),
                 widthHeightPadding = 10;
 
             // If the target element is fixed, the tooltip should be fixed as well.
             // Otherwise, remove a fixed class that may be left over from the previous
             // step.
-            if (_isFixed(currentElement.element)) {
+            if (_isFixed(elementNode)) {
                 helperLayer.className += ' introjs-fixedTooltip';
             } else {
                 helperLayer.className = helperLayer.className.replace(' introjs-fixedTooltip', '');
@@ -804,6 +808,26 @@
     }
 
     /**
+     * Returns step's cached DOM element or select's it now if it is dynamicaly created
+     *
+     * @api private
+     * @method __getElementNode
+     */
+    function _getElementNode(targetElement){
+        var elementNode;
+
+        if (targetElement.isDynamicElement) {
+            // grab the element with given selector from the page
+            elementNode = document.querySelector(targetElement.element);
+        } else {
+            // user already cached element
+            elementNode = targetElement.element;
+        }
+
+        return elementNode;
+    }
+
+    /**
      * Show an element on the page
      *
      * @api private
@@ -811,15 +835,19 @@
      * @param {Object} targetElement
      */
     function _showElement(targetElement) {
+        var elementNode = _getElementNode(targetElement);
+
         if (typeof (this._introChangeCallback) !== 'undefined') {
-            this._introChangeCallback.call(this, targetElement.element);
+            this._introChangeCallback.call(this, elementNode);
         }
 
         var self = this,
             oldHelperLayer = document.querySelector('.introjs-helperLayer'),
             oldReferenceLayer = document.querySelector('.introjs-tooltipReferenceLayer'),
             highlightClass = 'introjs-helperLayer',
-            elementPosition = _getOffset(targetElement.element);
+            elementPosition;
+
+        elementPosition = _getOffset(elementNode);
 
         //check for a current step highlight class
         if (typeof (targetElement.highlightClass) === 'string') {
@@ -881,7 +909,7 @@
                 oldtooltipLayer.innerHTML = targetElement.intro;
                 //set the tooltip position
                 oldtooltipContainer.style.display = "block";
-                _placeTooltip.call(self, targetElement.element, oldtooltipContainer, oldArrowLayer, oldHelperNumberLayer);
+                _placeTooltip.call(self, elementNode, oldtooltipContainer, oldArrowLayer, oldHelperNumberLayer);
 
                 //change current step status
                 if (self._options.showStepStatus) {
@@ -1093,7 +1121,7 @@
             tooltipLayer.appendChild(buttonsLayer);
 
             //set proper position
-            _placeTooltip.call(self, targetElement.element, tooltipLayer, arrowLayer, helperNumberLayer);
+            _placeTooltip.call(self, elementNode, tooltipLayer, arrowLayer, helperNumberLayer);
 
             //end of new element if-else condition
         }
@@ -1162,14 +1190,14 @@
 
         _setShowElement(targetElement);
 
-        if (!_elementInViewport(targetElement.element) && this._options.scrollToElement === true) {
-            var rect = targetElement.element.getBoundingClientRect(),
+        if (!_elementInViewport(elementNode) && this._options.scrollToElement === true) {
+            var rect = elementNode.getBoundingClientRect(),
                 winHeight = _getWinSize().height,
                 top = rect.bottom - (rect.bottom - rect.top),
                 bottom = rect.bottom - winHeight;
 
             //Scroll up
-            if (top < 0 || targetElement.element.clientHeight > winHeight) {
+            if (top < 0 || elementNode.clientHeight > winHeight) {
                 window.scrollBy(0, top - this._options.scrollPadding); // 30px padding from edge to look nice
 
                 //Scroll down
@@ -1179,7 +1207,7 @@
         }
 
         if (typeof (this._introAfterChangeCallback) !== 'undefined') {
-            this._introAfterChangeCallback.call(this, targetElement.element);
+            this._introAfterChangeCallback.call(this, elementNode);
         }
     }
 
@@ -1207,12 +1235,14 @@
      * @param {Object} targetElement
      */
     function _setShowElement(targetElement) {
+        var elementNode = _getElementNode(targetElement)
+
         // we need to add this show element class to the parent of SVG elements
         // because the SVG elements can't have independent z-index
-        if (targetElement.element instanceof SVGElement) {
-            var parentElm = targetElement.element.parentNode;
+        if (elementNode instanceof SVGElement) {
+            var parentElm = elementNode.parentNode;
 
-            while (targetElement.element.parentNode != null) {
+            while (elementNode.parentNode != null) {
                 if (!parentElm.tagName || parentElm.tagName.toLowerCase() === 'body') break;
 
                 if (parentElm.tagName.toLowerCase() === 'svg') {
@@ -1223,18 +1253,18 @@
             }
         }
 
-        _setClass(targetElement.element, 'introjs-showElement');
+        _setClass(elementNode, 'introjs-showElement');
 
-        var currentElementPosition = _getPropValue(targetElement.element, 'position');
+        var currentElementPosition = _getPropValue(elementNode, 'position');
         if (currentElementPosition !== 'absolute' &&
             currentElementPosition !== 'relative' &&
             currentElementPosition !== 'fixed') {
             //change to new intro item
-            //targetElement.element.className += ' introjs-relativePosition';
-            _setClass(targetElement.element, 'introjs-relativePosition')
+            //elementNode.className += ' introjs-relativePosition';
+            _setClass(elementNode, 'introjs-relativePosition')
         }
 
-        var parentElm = targetElement.element.parentNode;
+        var parentElm = elementNode.parentNode;
         while (parentElm != null) {
             if (!parentElm.tagName || parentElm.tagName.toLowerCase() === 'body') break;
 
