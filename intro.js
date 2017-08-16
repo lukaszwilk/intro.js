@@ -226,13 +226,19 @@
                 if (e.keyCode === 27 && self._options.exitOnEsc == true) {
                     //escape key pressed, exit the intro
                     //check if exit callback is defined
+
+                    // ignore if button is blocked
+                    if (skipButton.classList.contains('introjs-button--blocked')) {
+                        return;
+                    }
+
                     _exitIntro.call(self, targetElm, true);
                 } else if(e.keyCode === 37) {
                     e.preventDefault();
                     e.stopPropagation();
 
-                    // ignore if button is blocked
-                    if (prevStepButton.classList.contains('introjs-button--blocked')) {
+                    // ignore if button is blocked or there is no set label
+                    if (prevStepButton.classList.contains('introjs-button--blocked') || !self._options.prevLabel) {
                         return;
                     }
 
